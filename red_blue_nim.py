@@ -1,8 +1,8 @@
 import sys
 
 # Constants
-RED = "red"
-BLUE = "blue"
+RED = 0
+BLUE = 1
 
 # Function to check if a pile is empty
 def is_empty(piles):
@@ -26,7 +26,7 @@ def get_human_move(piles):
     print("Your Turn:")
     while True:
         pile = input("Choose a pile (red/blue): ").lower()
-        if pile not in [RED, BLUE]:
+        if pile not in ["red", "blue"]:
             print("Invalid pile. Please choose red or blue.")
             continue
         num_marbles = input("Choose 1 or 2 marbles to remove: ")
@@ -34,7 +34,7 @@ def get_human_move(piles):
             print("Invalid number of marbles. Please choose 1 or 2.")
             continue
         num_marbles = int(num_marbles)
-        if num_marbles > piles[pile] or num_marbles < 1:
+        if num_marbles > piles[RED if pile == "red" else BLUE] or num_marbles < 1:
             print("Invalid number of marbles. Please choose a valid number.")
             continue
         return pile, num_marbles
@@ -48,9 +48,10 @@ def get_computer_move(piles, version, depth=None):
 
         if is_maximizing_player:
             best_val = float('-inf')
-            for pile, num_marbles in [("red", 2), ("blue", 2), ("red", 1), ("blue", 1)]:
+            moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+            for num_marbles, pile in moves:
                 if piles[pile] >= num_marbles:
-                    new_piles = piles.copy()
+                    new_piles = piles[:]
                     new_piles[pile] -= num_marbles
                     val = evaluate_node(new_piles, depth - 1, False, alpha, beta)
                     best_val = max(best_val, val)
@@ -60,16 +61,16 @@ def get_computer_move(piles, version, depth=None):
             return best_val
         else:
             best_val = float('inf')
-            for num_marbles in [2, 1]:
-                for pile in ["blue", "red"]:
-                    if piles[pile] >= num_marbles:
-                        new_piles = piles.copy()
-                        new_piles[pile] -= num_marbles
-                        val = evaluate_node(new_piles, depth - 1, True, alpha, beta)
-                        best_val = min(best_val, val)
-                        beta = min(beta, best_val)
-                        if beta <= alpha:
-                            break
+            moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+            for num_marbles, pile in moves:
+                if piles[pile] >= num_marbles:
+                    new_piles = piles[:]
+                    new_piles[pile] -= num_marbles
+                    val = evaluate_node(new_piles, depth - 1, True, alpha, beta)
+                    best_val = min(best_val, val)
+                    beta = min(beta, best_val)
+                    if beta <= alpha:
+                        break
             return best_val
     
     # Main function body
@@ -79,9 +80,10 @@ def get_computer_move(piles, version, depth=None):
     beta = float('inf')
     if depth is None:
         depth = float('inf')  # Set depth to infinity if not provided
-    for pile, num_marbles in [("red", 2), ("blue", 2), ("red", 1), ("blue", 1)]:
+    moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+    for num_marbles, pile in moves:
         if piles[pile] >= num_marbles:
-            new_piles = piles.copy()
+            new_piles = piles[:]
             new_piles[pile] -= num_marbles
             score = evaluate_node(new_piles, depth, False, alpha, beta)
             if score > best_score:
@@ -91,7 +93,7 @@ def get_computer_move(piles, version, depth=None):
 
 # Function to play a full game
 def play_game(num_red, num_blue, version="standard", first_player="computer", depth=None):
-    piles = {RED: num_red, BLUE: num_blue}
+    piles = [num_red, num_blue]
     current_player = first_player
     
     # Display initial state
@@ -109,9 +111,10 @@ def play_game(num_red, num_blue, version="standard", first_player="computer", de
 
         if current_player == "human":
             pile, num_marbles = get_human_move(piles)
+            pile = RED if pile == "red" else BLUE
         else:
             pile, num_marbles = get_computer_move(piles, version, depth)
-            print("Computer chose to remove", num_marbles, "marbles from", pile, "pile.")
+            print("Computer chose to remove", num_marbles, "marbles from", "red" if pile == RED else "blue", "pile.")
 
         piles[pile] -= num_marbles
         if is_empty(piles):
@@ -149,7 +152,3 @@ if __name__ == "__main__":
 
     # Play the game
     play_game(num_red, num_blue, version, first_player, depth)
-
-
-
-

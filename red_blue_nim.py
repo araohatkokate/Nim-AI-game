@@ -21,11 +21,11 @@ def print_state(piles):
     print("Blue Pile:", piles[BLUE])
 
 # Function to prompt human player for move
+# Function to prompt human player for move
 def get_human_move(piles):
-    print_state(piles)
-    print("Your Turn:")
+    #print_state(piles)
     while True:
-        pile = input("Choose a pile (red/blue): ").lower()
+        pile = input("Your Turn: Choose a pile (red/blue): ").lower()
         if pile not in ["red", "blue"]:
             print("Invalid pile. Please choose red or blue.")
             continue
@@ -39,6 +39,7 @@ def get_human_move(piles):
             continue
         return pile, num_marbles
 
+
 # Function to perform computer move using Minimax with Alpha-Beta Pruning
 def get_computer_move(piles, version, depth=None):
     # Helper function to evaluate the score of a node
@@ -48,7 +49,9 @@ def get_computer_move(piles, version, depth=None):
 
         if is_maximizing_player:
             best_val = float('-inf')
-            moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+            moves = [(2, RED), (2, BLUE), (1, RED), (1, BLUE)]  # Move ordering for standard version
+            if version == "misere":
+                moves = [(1, BLUE), (1, RED), (2, BLUE), (2, RED)]  # Move ordering for misere version
             for num_marbles, pile in moves:
                 if piles[pile] >= num_marbles:
                     new_piles = piles[:]
@@ -62,6 +65,8 @@ def get_computer_move(piles, version, depth=None):
         else:
             best_val = float('inf')
             moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+            if version == "misere":
+                moves = [(1, RED), (1, BLUE), (2, RED), (2, BLUE)]
             for num_marbles, pile in moves:
                 if piles[pile] >= num_marbles:
                     new_piles = piles[:]
@@ -142,7 +147,7 @@ def play_game(num_red, num_blue, version="standard", first_player="computer", de
     print("Score:", score)
 
 if __name__ == "__main__":
-    # Parse command line arguments
+    # Prase command line arguments
     args = sys.argv[1:]
     num_red = int(args[0])
     num_blue = int(args[1])

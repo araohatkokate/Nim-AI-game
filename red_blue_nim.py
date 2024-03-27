@@ -45,37 +45,32 @@ def get_computer_move(piles, version, depth=None):
     def evaluate_node(piles, depth, is_maximizing_player, alpha, beta):
         if is_empty(piles) or depth == 0:
             return calculate_score(piles, version)
-        
+
         if is_maximizing_player:
             best_val = float('-inf')
-            best_move = None
             for pile, num_marbles in [("red", 2), ("blue", 2), ("red", 1), ("blue", 1)]:
                 if piles[pile] >= num_marbles:
                     new_piles = piles.copy()
                     new_piles[pile] -= num_marbles
                     val = evaluate_node(new_piles, depth - 1, False, alpha, beta)
-                    if val > best_val:
-                        best_val = val
-                        best_move = (pile, num_marbles)
+                    best_val = max(best_val, val)
                     alpha = max(alpha, best_val)
                     if beta <= alpha:
                         break
-            return best_val, best_move
+            return best_val
         else:
             best_val = float('inf')
-            best_move = None
-            for pile, num_marbles in [("blue", 1), ("red", 1), ("blue", 2), ("red", 2)]:
-                if piles[pile] >= num_marbles:
-                    new_piles = piles.copy()
-                    new_piles[pile] -= num_marbles
-                    val = evaluate_node(new_piles, depth - 1, True, alpha, beta)
-                    if val < best_val:
-                        best_val = val
-                        best_move = (pile, num_marbles)
-                    beta = min(beta, best_val)
-                    if beta <= alpha:
-                        break
-            return best_val, best_move
+            for num_marbles in [2, 1]:
+                for pile in ["blue", "red"]:
+                    if piles[pile] >= num_marbles:
+                        new_piles = piles.copy()
+                        new_piles[pile] -= num_marbles
+                        val = evaluate_node(new_piles, depth - 1, True, alpha, beta)
+                        best_val = min(best_val, val)
+                        beta = min(beta, best_val)
+                        if beta <= alpha:
+                            break
+            return best_val
     
     # Main function body
     best_move = None
@@ -88,10 +83,10 @@ def get_computer_move(piles, version, depth=None):
         if piles[pile] >= num_marbles:
             new_piles = piles.copy()
             new_piles[pile] -= num_marbles
-            score, move = evaluate_node(new_piles, depth, False, alpha, beta)
+            score = evaluate_node(new_piles, depth, False, alpha, beta)
             if score > best_score:
                 best_score = score
-                best_move = move
+                best_move = (pile, num_marbles)
     return best_move
 
 # Function to play a full game
@@ -154,5 +149,7 @@ if __name__ == "__main__":
 
     # Play the game
     play_game(num_red, num_blue, version, first_player, depth)
+
+
 
 

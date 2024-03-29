@@ -21,9 +21,7 @@ def print_state(piles):
     print("Blue Pile:", piles[BLUE])
 
 # Function to prompt human player for move
-# Function to prompt human player for move
 def get_human_move(piles):
-    #print_state(piles)
     while True:
         pile = input("Your Turn: Choose a pile (red/blue): ").lower()
         if pile not in ["red", "blue"]:
@@ -38,7 +36,6 @@ def get_human_move(piles):
             print("Invalid number of marbles. Please choose a valid number.")
             continue
         return pile, num_marbles
-
 
 # Function to perform computer move using Minimax with Alpha-Beta Pruning
 def get_computer_move(piles, version, depth=None):
@@ -85,7 +82,9 @@ def get_computer_move(piles, version, depth=None):
     beta = float('inf')
     if depth is None:
         depth = float('inf')  # Set depth to infinity if not provided
-    moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+    moves = [(2, RED), (2, BLUE), (1, RED), (1, BLUE)]  # Move ordering for standard version
+    if version == "misere":
+        moves = [(1, BLUE), (1, RED), (2, BLUE), (2, RED)]  # Move ordering for misere version
     for num_marbles, pile in moves:
         if piles[pile] >= num_marbles:
             new_piles = piles[:]
@@ -107,7 +106,7 @@ def play_game(num_red, num_blue, version="standard", first_player="computer", de
 
     while not is_empty(piles):
         if version == "misere" and is_empty(piles):
-            winner = "computer" if current_player == "human" else "human"
+            winner = "human" if current_player == "computer" else "computer"
             score = calculate_score(piles, version)
             print("Game Over!")
             print("Winner:", winner)
@@ -122,24 +121,23 @@ def play_game(num_red, num_blue, version="standard", first_player="computer", de
             print("Computer chose to remove", num_marbles, "marbles from", "red" if pile == RED else "blue", "pile.")
 
         piles[pile] -= num_marbles
-        if is_empty(piles):
-            break
-        
-        # Check for empty piles in standard version
-        if version == "standard" and is_empty(piles):
-            winner = "computer" if current_player == "human" else "human"
-            score = calculate_score(piles, version)
-            print("Game Over!")
-            print("Winner:", winner)
-            print("Score:", score)
-            return
 
         current_player = "human" if current_player == "computer" else "computer"
+        
+        # Display current state
+        print("Current State:")
+        print_state(piles)
 
     if version == "standard":
-        winner = "computer" if current_player == "human" else "human"
+        if is_empty(piles):
+            winner = "computer" if current_player == "human" else "human"
+        else:
+            winner = "human" if current_player == "computer" else "computer"
     elif version == "misere":
-        winner = "human" if current_player == "human" else "computer"
+        if is_empty(piles):
+            winner = "human" if current_player == "human" else "computer"
+        else:
+            winner = "computer" if current_player == "human" else "human"
 
     score = calculate_score(piles, version)
     print("Game Over!")
@@ -147,7 +145,7 @@ def play_game(num_red, num_blue, version="standard", first_player="computer", de
     print("Score:", score)
 
 if __name__ == "__main__":
-    # Prase command line arguments
+    # Parse command line arguments
     args = sys.argv[1:]
     num_red = int(args[0])
     num_blue = int(args[1])
@@ -157,3 +155,6 @@ if __name__ == "__main__":
 
     # Play the game
     play_game(num_red, num_blue, version, first_player, depth)
+
+
+

@@ -41,7 +41,10 @@ def get_human_move(marble_piles):
 def get_computer_move(marble_piles, version, depth=None):
     def evaluate_node(marble_piles, depth, is_maximizing_player, alpha, beta):
         if is_empty(marble_piles) or depth == 0:
-            return calculate_score(marble_piles, version)
+            score =  calculate_score(marble_piles, version)
+            if version == "misere":
+                score = -score
+            return score
 
         if is_maximizing_player:
             best_val = float('-inf')
@@ -60,9 +63,9 @@ def get_computer_move(marble_piles, version, depth=None):
             return best_val
         else:
             best_val = float('inf')
-            moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)]
+            moves = [(2, BLUE), (2, RED), (1, BLUE), (1, RED)] # Move ordering for standard version
             if version == "misere":
-                moves = [(1, RED), (1, BLUE), (2, RED), (2, BLUE)]
+                moves = [(1, RED), (1, BLUE), (2, RED), (2, BLUE)] # Move ordering for misere version
             for num_marbles, pile in moves:
                 if marble_piles[pile] >= num_marbles:
                     new_marble_piles = marble_piles[:]
@@ -80,7 +83,7 @@ def get_computer_move(marble_piles, version, depth=None):
     alpha = float('-inf')
     beta = float('inf')
     if depth is None:
-        depth = float('inf') 
+        depth = float('inf')
     moves = [(2, RED), (2, BLUE), (1, RED), (1, BLUE)]  # Move ordering for standard version
     if version == "misere":
         moves = [(1, BLUE), (1, RED), (2, BLUE), (2, RED)]  # Move ordering for misere version
